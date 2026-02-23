@@ -1,3 +1,10 @@
+st.markdown("""
+    <style>
+    .stApp {
+        backdrop-filter: blur(24px);
+    }
+    </style>
+    """, unsafe_allow_html=True)
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { initializeApp } from 'firebase/app';
 import { 
