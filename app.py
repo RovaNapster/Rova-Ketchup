@@ -1,10 +1,5 @@
-st.markdown("""
-    <style>
-    .stApp {
-        backdrop-filter: blur(24px);
-    }
-    </style>
-    """, unsafe_allow_html=True)
+
+
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { initializeApp } from 'firebase/app';
 import { 
@@ -178,6 +173,13 @@ export default function App() {
       <style>{`
         .glass-panel { 
           background: ${isDark ? 'rgba(255,255,255,0.03)' : 'rgba(255,255,255,0.8)'}; 
+    st.markdown("""
+    <style>
+    .stApp {
+        backdrop-filter: blur(24px);
+    }
+    </style>
+    """, unsafe_allow_html=True)
           backdrop-filter: blur(24px); 
           border: 1px solid ${isDark ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.05)'}; 
         }
