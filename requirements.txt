@@ -2,5 +2,5 @@ streamlit
 pandas
 numpy
 plotly
-st+gsheets+connections
-fpdf2
+st-gsheets-connection
+fpdf
