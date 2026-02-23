@@ -43,7 +43,7 @@ Performance First: Användning av useMemo och useCallback för att minimera onö
 
 Öppna applikationen i en modern webbläsare.
 
-Logga in med det kliniska lösenordet (standard: Bella2026).
+Logga in med det kliniska lösenordet (standard: xxxxxx).
 
 Använd Blixt-ikonen för att registrera dagens dos.
 
