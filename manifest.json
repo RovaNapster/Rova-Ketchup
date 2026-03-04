@@ -1,0 +1,22 @@
+{
+  "name": "Rova Ketchup Pro",
+  "short_name": "Rova",
+  "description": "Kliniskt protokoll för Bella",
+  "start_url": "/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#fffafa",
+  "theme_color": "#d62828",
+  "icons": [
+    {
+      "src": "https://emojigraph.org/media/apple/tomato_1f345.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "https://emojigraph.org/media/apple/tomato_1f345.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
