@@ -10,7 +10,26 @@ import base64
 # ==============================================
 # 1. KONFIGURATION & SECRETS
 # ==============================================
-st.set_page_config(
+st.set_page_config(# --- PWA & UI OPTIMERING ---
+st.markdown(f"""
+    <link rel="manifest" href="https://raw.githubusercontent.com/{st.secrets["connections"]["gsheets"]["github_user"]}/{st.secrets["connections"]["gsheets"]["github_repo"]}/main/manifest.json">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <style>
+        /* Döljer Streamlit-menyer för en renare app-känsla */
+        #MainMenu {{visibility: hidden;}}
+        footer {{visibility: hidden;}}
+        header {{visibility: hidden;}}
+        
+        /* Gör knappar mer touch-vänliga för mobilen */
+        .stButton > button {{
+            height: 4rem;
+            border-radius: 15px !important;
+            font-size: 1.2rem !important;
+            font-weight: 700 !important;
+        }}
+    </style>
+""", unsafe_allow_html=True)
     page_title="Rova Ketchup Pro", 
     page_icon="🍅", 
     layout="wide"
