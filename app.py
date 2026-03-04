@@ -10,7 +10,7 @@ import base64
 # ==============================================
 # 1. KONFIGURATION & SECRETS
 # ==============================================
-st.set_page_config(# --- PWA & UI OPTIMERING ---
+st.set_page_config(
 st.markdown(f"""
     <link rel="manifest" href="https://raw.githubusercontent.com/{st.secrets["connections"]["gsheets"]["github_user"]}/{st.secrets["connections"]["gsheets"]["github_repo"]}/main/manifest.json">
     <meta name="apple-mobile-web-app-capable" content="yes">
