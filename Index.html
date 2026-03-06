@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="theme-color" content="#000000">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <link rel="apple-touch-icon" href="https://emojigraph.org/media/apple/tomato_1f345.png">
+    <link rel="manifest" href="manifest.json">
+    <title>Rova Ketchup Pro</title>
+    <style>
+        :root { --red: #d62828; --dark: #121212; --panel: #1e1e1e; }
+        body { margin: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; background-color: #000; color: #fff; padding-top: env(safe-area-inset-top); padding-bottom: 80px; }
+        .header { text-align: center; padding: 20px; font-size: 24px; font-weight: 900; color: var(--red); letter-spacing: 1px; }
+        .subtitle { text-align: center; color: #888; font-size: 14px; margin-top: -15px; margin-bottom: 20px; }
+        .container { padding: 15px; }
+        .panel { background-color: var(--panel); border-radius: 16px; padding: 20px; margin-bottom: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.5); }
+        .tomato-btn { display: block; width: 120px; height: 120px; margin: 0 auto 20px; font-size: 60px; background: rgba(214, 40, 40, 0.15); border: 3px solid var(--red); border-radius: 50%; cursor: pointer; box-shadow: 0 0 20px rgba(214, 40, 40, 0.4); transition: transform 0.1s; }
+        .tomato-btn:active { transform: scale(0.95); }
+        .label { font-size: 14px; color: #aaa; margin-bottom: 10px; display: block; font-weight: 600; text-transform: uppercase; }
+        .form-group { margin-bottom: 20px; }
+        select, input[type="range"] { width: 100%; padding: 12px; border-radius: 8px; border: 1px solid #333; background: #000; color: #fff; font-size: 16px; }
+        .btn-primary { width: 100%; padding: 16px; background-color: var(--red); color: #fff; border: none; border-radius: 12px; font-size: 18px; font-weight: bold; cursor: pointer; box-shadow: 0 4px 10px rgba(214,40,40,0.3); }
+        .brain-box { background: #1a1a1a; border-left: 4px solid var(--red); padding: 15px; border-radius: 8px; display: none; margin-top: 15px; }
+        .toast { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); background: #333; color: #fff; padding: 12px 24px; border-radius: 30px; font-size: 14px; display: none; z-index: 1000; }
+    </style>
+</head>
+<body>
+
+    <div class="header">🍅 ROVA KETCHUP</div>
+    <div class="subtitle">Kliniskt Protokoll: Bella</div>
+
+    <div class="container">
+        <div class="panel">
+            <button class="tomato-btn" onclick="logDose()">🍅</button>
+            <div style="text-align: center; color: #aaa; margin-bottom: 20px;">Tryck på tomaten för att logga dagens dos</div>
+            
+            <div class="form-group">
+                <span class="label">🩸 Mellanblödning idag?</span>
+                <select id="spotting">
+                    <option value="Nej">Nej</option>
+                    <option value="Ja">Ja, spotting</option>
+                </select>
+            </div>
+            
+            <div class="form-group">
+                <span class="label">😊 Dagsform (1-10)</span>
+                <input type="range" id="mood" min="1" max="10" value="7" oninput="document.getElementById('mood-val').innerText=this.value">
+                <div style="text-align: center; margin-top: 5px; font-weight: bold;" id="mood-val">7</div>
+            </div>
+        </div>
+
+        <div class="panel">
+            <span class="label" style="color: var(--red);">🧠 Rova-Brain System</span>
+            <button class="btn-primary" onclick="runBrain()">Kör Analys</button>
+            <div id="brain-output" class="brain-box"></div>
+        </div>
+    </div>
+
+    <div id="toast" class="toast">Dosen är sparad! ✅</div>
+
+    <script>
+        // SPARA DOS
+        function logDose() {
+            let logs = JSON.parse(localStorage.getItem('rovaLogs')) || [];
+            let entry = {
+                date: new Date().toLocaleDateString('sv-SE'),
+                time: new Date().toLocaleTimeString('sv-SE', {hour: '2-digit', minute:'2-digit'}),
+                spotting: document.getElementById('spotting').value,
+                mood: document.getElementById('mood').value
+            };
+            logs.push(entry);
+            localStorage.setItem('rovaLogs', JSON.stringify(logs));
+            
+            // Visa bekräftelse
+            let toast = document.getElementById('toast');
+            toast.style.display = 'block';
+            setTimeout(() => toast.style.display = 'none', 3000);
+        }
+
+        // KÖR ROVA-BRAIN
+        function runBrain() {
+            let logs = JSON.parse(localStorage.getItem('rovaLogs')) || [];
+            let output = document.getElementById('brain-output');
+            
+            if (logs.length === 0) {
+                output.innerHTML = "<strong>Väntar på data:</strong> Inga doser är loggade ännu.";
+            } else {
+                let totalLogs = logs.length;
+                let spotCount = logs.filter(l => l.spotting === 'Ja').length;
+                let spotPercent = Math.round((spotCount / totalLogs) * 100);
+                
+                let recommendation = "Följsamheten är utmärkt. Fortsätt enligt Slinda-protokollet.";
+                if (spotPercent > 30) {
+                    recommendation = "Något förhöjd frekvens av spotting. Detta är förväntat under de första månaderna. Fortsätt monitorera.";
+                }
+
+                output.innerHTML = `
+                    <div style="color: var(--red); font-weight: bold; margin-bottom: 5px;">🤖 UTLÅTANDE:</div>
+                    Dagar loggade: <strong>${totalLogs} st</strong><br>
+                    Spotting frekvens: <strong>${spotPercent}%</strong><br><br>
+                    <em>${recommendation}</em>
+                `;
+            }
+            output.style.display = 'block';
+        }
+
+        // Registrera Service Worker för PWA (Gör appen installerbar)
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('sw.js');
+        }
+    </script>
+</body>
+</html>
