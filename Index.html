@@ -8,108 +8,241 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <link rel="apple-touch-icon" href="https://emojigraph.org/media/apple/tomato_1f345.png">
     <link rel="manifest" href="manifest.json">
-    <title>Rova Ketchup Pro</title>
+    <title>Rova Ultra</title>
+    
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
     <style>
-        :root { --red: #d62828; --dark: #121212; --panel: #1e1e1e; }
-        body { margin: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; background-color: #000; color: #fff; padding-top: env(safe-area-inset-top); padding-bottom: 80px; }
-        .header { text-align: center; padding: 20px; font-size: 24px; font-weight: 900; color: var(--red); letter-spacing: 1px; }
-        .subtitle { text-align: center; color: #888; font-size: 14px; margin-top: -15px; margin-bottom: 20px; }
-        .container { padding: 15px; }
-        .panel { background-color: var(--panel); border-radius: 16px; padding: 20px; margin-bottom: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.5); }
-        .tomato-btn { display: block; width: 120px; height: 120px; margin: 0 auto 20px; font-size: 60px; background: rgba(214, 40, 40, 0.15); border: 3px solid var(--red); border-radius: 50%; cursor: pointer; box-shadow: 0 0 20px rgba(214, 40, 40, 0.4); transition: transform 0.1s; }
-        .tomato-btn:active { transform: scale(0.95); }
-        .label { font-size: 14px; color: #aaa; margin-bottom: 10px; display: block; font-weight: 600; text-transform: uppercase; }
-        .form-group { margin-bottom: 20px; }
-        select, input[type="range"] { width: 100%; padding: 12px; border-radius: 8px; border: 1px solid #333; background: #000; color: #fff; font-size: 16px; }
-        .btn-primary { width: 100%; padding: 16px; background-color: var(--red); color: #fff; border: none; border-radius: 12px; font-size: 18px; font-weight: bold; cursor: pointer; box-shadow: 0 4px 10px rgba(214,40,40,0.3); }
-        .brain-box { background: #1a1a1a; border-left: 4px solid var(--red); padding: 15px; border-radius: 8px; display: none; margin-top: 15px; }
-        .toast { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); background: #333; color: #fff; padding: 12px 24px; border-radius: 30px; font-size: 14px; display: none; z-index: 1000; }
+        /* 120Hz & GPU Optimering */
+        :root { 
+            --red: #d62828; 
+            --dark: #0a0a0a; 
+            --panel: #141414; 
+            --green: #00ff88;
+            --orange: #ffa500;
+        }
+        
+        body { 
+            margin: 0; 
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; 
+            background-color: #000; 
+            color: #fff; 
+            padding: max(20px, env(safe-area-inset-top)) 20px 80px 20px;
+            -webkit-font-smoothing: antialiased; /* Knivskarp text för OnePlus & iPhone */
+            overscroll-behavior-y: none; /* Stoppar irriterande "bounce" när man scrollar */
+        }
+
+        /* Glassmorphism Header */
+        .header-panel {
+            background: rgba(214, 40, 40, 0.1);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(214, 40, 40, 0.2);
+            border-radius: 24px;
+            padding: 20px;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        
+        .header-title { margin: 0; font-size: 32px; font-weight: 900; letter-spacing: -1px; }
+        .text-red { color: var(--red); }
+
+        /* Paneler */
+        .panel { 
+            background-color: var(--panel); 
+            border-radius: 20px; 
+            padding: 25px; 
+            margin-bottom: 25px; 
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+        }
+
+        /* Turbo Button - 120Hz Optimized */
+        .btn-ultra { 
+            width: 100%; 
+            padding: 20px; 
+            background-color: var(--red); 
+            color: #fff; 
+            border: none; 
+            border-radius: 16px; 
+            font-size: 20px; 
+            font-weight: 800; 
+            cursor: pointer; 
+            position: relative;
+            overflow: hidden;
+            /* Cubic bezier för "snappy" känsla */
+            transition: transform 0.1s cubic-bezier(0, 0, 0, 1), background-color 0.2s; 
+            will-change: transform; /* Säger till GPU:n att förbereda animationen */
+        }
+        
+        .btn-ultra:active { transform: scale(0.95); }
+
+        /* Turbo Laddning (Ripple effect) */
+        .turbo-ripple {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 300px;
+            height: 300px;
+            background: rgba(255, 255, 255, 0.4);
+            border-radius: 50%;
+            transform: translate(-50%, -50%) scale(0);
+            animation: warpCharge 0.4s ease-out;
+            pointer-events: none;
+        }
+
+        @keyframes warpCharge {
+            0% { transform: translate(-50%, -50%) scale(0); opacity: 1; }
+            100% { transform: translate(-50%, -50%) scale(1); opacity: 0; }
+        }
+
+        /* Inputs */
+        .label { font-size: 12px; color: #888; font-weight: bold; text-transform: uppercase; margin-bottom: 10px; display: block; }
+        input[type="range"] { width: 100%; accent-color: var(--red); margin-bottom: 25px; }
+        .toggle-row { display: flex; justify-content: space-between; align-items: center; font-size: 16px; font-weight: 500; }
+        input[type="checkbox"] { width: 24px; height: 24px; accent-color: var(--red); }
+
+        /* Brain Status Box */
+        #brain-box {
+            border-left: 6px solid var(--green);
+            background: #111;
+            padding: 15px 20px;
+            border-radius: 16px;
+            display: none;
+            margin-bottom: 25px;
+            transition: all 0.3s ease;
+        }
+
+        .chart-container { position: relative; height: 220px; width: 100%; }
     </style>
 </head>
 <body>
 
-    <div class="header">🍅 ROVA KETCHUP</div>
-    <div class="subtitle">Kliniskt Protokoll: Bella</div>
+    <div class="header-panel">
+        <h1 class="header-title">ROVA <span class="text-red">ULTRA</span></h1>
+        <div style="color: #888; font-size: 14px; margin-top: 5px;">Klinisk Profil: Bella</div>
+    </div>
 
-    <div class="container">
-        <div class="panel">
-            <button class="tomato-btn" onclick="logDose()">🍅</button>
-            <div style="text-align: center; color: #aaa; margin-bottom: 20px;">Tryck på tomaten för att logga dagens dos</div>
-            
-            <div class="form-group">
-                <span class="label">🩸 Mellanblödning idag?</span>
-                <select id="spotting">
-                    <option value="Nej">Nej</option>
-                    <option value="Ja">Ja, spotting</option>
-                </select>
-            </div>
-            
-            <div class="form-group">
-                <span class="label">😊 Dagsform (1-10)</span>
-                <input type="range" id="mood" min="1" max="10" value="7" oninput="document.getElementById('mood-val').innerText=this.value">
-                <div style="text-align: center; margin-top: 5px; font-weight: bold;" id="mood-val">7</div>
-            </div>
-        </div>
+    <div id="brain-box">
+        <div id="brain-status" style="font-weight: 900; font-size: 12px; letter-spacing: 1px; margin-bottom: 5px;">STATUS: OPTIMAL</div>
+        <div id="brain-advice" style="font-size: 15px; color: #ddd; line-height: 1.4;">Laddar systemdata...</div>
+    </div>
 
-        <div class="panel">
-            <span class="label" style="color: var(--red);">🧠 Rova-Brain System</span>
-            <button class="btn-primary" onclick="runBrain()">Kör Analys</button>
-            <div id="brain-output" class="brain-box"></div>
+    <div class="panel">
+        <button class="btn-ultra" id="logBtn" onclick="triggerTurboLog(event)">LOGGA DOS ⚡</button>
+
+        <div style="margin-top: 30px;">
+            <label class="label" id="mood-label">Dagsform: 7/10</label>
+            <input type="range" id="mood" min="1" max="10" value="7" oninput="updateMoodLabel(this.value)">
+            
+            <div class="toggle-row">
+                <span>Spotting / Blödning idag?</span>
+                <input type="checkbox" id="spotting">
+            </div>
         </div>
     </div>
 
-    <div id="toast" class="toast">Dosen är sparad! ✅</div>
+    <div class="panel" style="padding: 15px;">
+        <div class="label" style="margin-left: 5px;">📈 TREND (Senaste 7 dgr)</div>
+        <div class="chart-container">
+            <canvas id="trendChart"></canvas>
+        </div>
+    </div>
 
     <script>
-        // SPARA DOS
-        function logDose() {
+        let myChart = null;
+
+        // UI Uppdateringar
+        function updateMoodLabel(val) {
+            document.getElementById('mood-label').innerText = `Dagsform: ${val}/10`;
+        }
+
+        // Turbo-Animation & Loggning
+        function triggerTurboLog(event) {
+            const btn = document.getElementById('logBtn');
+            
+            // Skapa Warp Charge Ripple
+            const ripple = document.createElement('span');
+            ripple.classList.add('turbo-ripple');
+            btn.appendChild(ripple);
+            
+            // Vibrera telefonen (Haptic Feedback) om webbläsaren stödjer det
+            if (navigator.vibrate) navigator.vibrate([50, 50, 50]);
+
+            // Vänta lite så animationen syns, spara sen
+            setTimeout(() => {
+                ripple.remove();
+                saveData();
+            }, 300);
+        }
+
+        function saveData() {
             let logs = JSON.parse(localStorage.getItem('rovaLogs')) || [];
+            
             let entry = {
-                date: new Date().toLocaleDateString('sv-SE'),
-                time: new Date().toLocaleTimeString('sv-SE', {hour: '2-digit', minute:'2-digit'}),
-                spotting: document.getElementById('spotting').value,
-                mood: document.getElementById('mood').value
+                date: new Date().toLocaleDateString('sv-SE', {day: 'numeric', month: 'short'}),
+                mood: parseInt(document.getElementById('mood').value),
+                spotting: document.getElementById('spotting').checked
             };
+            
             logs.push(entry);
             localStorage.setItem('rovaLogs', JSON.stringify(logs));
             
-            // Visa bekräftelse
-            let toast = document.getElementById('toast');
-            toast.style.display = 'block';
-            setTimeout(() => toast.style.display = 'none', 3000);
+            updateBrainAndChart();
         }
 
-        // KÖR ROVA-BRAIN
-        function runBrain() {
+        // Avancerad Rova-Brain
+        function updateBrainAndChart() {
             let logs = JSON.parse(localStorage.getItem('rovaLogs')) || [];
-            let output = document.getElementById('brain-output');
+            if (logs.length === 0) return;
+
+            // --- 1. Rova Brain Logik ---
+            const recentLogs = logs.slice(-14); // Titta på de 14 senaste
+            const spottingDays = recentLogs.filter(l => l.spotting).length;
+            const avgMood = recentLogs.reduce((acc, curr) => acc + curr.mood, 0) / recentLogs.length;
+
+            const brainBox = document.getElementById('brain-box');
+            const statusEl = document.getElementById('brain-status');
+            const adviceEl = document.getElementById('brain-advice');
             
-            if (logs.length === 0) {
-                output.innerHTML = "<strong>Väntar på data:</strong> Inga doser är loggade ännu.";
+            brainBox.style.display = 'block';
+
+            if (avgMood < 4) {
+                brainBox.style.borderLeftColor = 'var(--red)';
+                statusEl.style.color = 'var(--red)';
+                statusEl.innerText = 'STATUS: KRITISK ⚠️';
+                adviceEl.innerText = `Sänkt dagsform detekterad (Snitt: ${avgMood.toFixed(1)}/10). Monitorera noggrant.`;
+            } else if (spottingDays > 4) {
+                brainBox.style.borderLeftColor = 'var(--orange)';
+                statusEl.style.color = 'var(--orange)';
+                statusEl.innerText = 'STATUS: ADAPTION 🔄';
+                adviceEl.innerText = `Hög frekvens spotting (${spottingDays} dgr). Förväntat beteende månad 1-3. Drick vatten.`;
             } else {
-                let totalLogs = logs.length;
-                let spotCount = logs.filter(l => l.spotting === 'Ja').length;
-                let spotPercent = Math.round((spotCount / totalLogs) * 100);
-                
-                let recommendation = "Följsamheten är utmärkt. Fortsätt enligt Slinda-protokollet.";
-                if (spotPercent > 30) {
-                    recommendation = "Något förhöjd frekvens av spotting. Detta är förväntat under de första månaderna. Fortsätt monitorera.";
-                }
-
-                output.innerHTML = `
-                    <div style="color: var(--red); font-weight: bold; margin-bottom: 5px;">🤖 UTLÅTANDE:</div>
-                    Dagar loggade: <strong>${totalLogs} st</strong><br>
-                    Spotting frekvens: <strong>${spotPercent}%</strong><br><br>
-                    <em>${recommendation}</em>
-                `;
+                brainBox.style.borderLeftColor = 'var(--green)';
+                statusEl.style.color = 'var(--green)';
+                statusEl.innerText = 'STATUS: OPTIMAL ✅';
+                adviceEl.innerText = `Systemet körs inom normalvärden. Utmärkt följsamhet.`;
             }
-            output.style.display = 'block';
-        }
 
-        // Registrera Service Worker för PWA (Gör appen installerbar)
-        if ('serviceWorker' in navigator) {
-            navigator.serviceWorker.register('sw.js');
-        }
-    </script>
-</body>
-</html>
+            // --- 2. Chart.js Uppdatering (120Hz Optimized) ---
+            const chartData = logs.slice(-7); // Visa bara senaste 7 i grafen
+            const labels = chartData.map(l => l.date);
+            const data = chartData.map(l => l.mood);
+
+            if (myChart) {
+                myChart.data.labels = labels;
+                myChart.data.datasets[0].data = data;
+                myChart.update();
+            } else {
+                const ctx = document.getElementById('trendChart').getContext('2d');
+                myChart = new Chart(ctx, {
+                    type: 'line',
+                    data: {
+                        labels: labels,
+                        datasets: [{
+                            label: 'Humör',
+                            data: data,
+                            borderColor: '#d62828',
+                            backgroundColor: 'rgba(214, 40, 40, 0.1)',
+                            borderWidth: 3,
+                            pointBackgroundColor: '#d62828',
+                            pointRadius: 4
