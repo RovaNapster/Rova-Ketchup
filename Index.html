@@ -8,241 +8,242 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <link rel="apple-touch-icon" href="https://emojigraph.org/media/apple/tomato_1f345.png">
     <link rel="manifest" href="manifest.json">
-    <title>Rova Ultra</title>
+    <title>Rova Ultra Pro</title>
     
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
     <style>
-        /* 120Hz & GPU Optimering */
         :root { 
-            --red: #d62828; 
-            --dark: #0a0a0a; 
-            --panel: #141414; 
-            --green: #00ff88;
-            --orange: #ffa500;
+            --red: #d62828; --dark: #0a0a0a; --panel: #141414; 
+            --green: #00ff88; --orange: #ffa500; --blue: #2196F3;
         }
         
         body { 
-            margin: 0; 
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; 
-            background-color: #000; 
-            color: #fff; 
-            padding: max(20px, env(safe-area-inset-top)) 20px 80px 20px;
-            -webkit-font-smoothing: antialiased; /* Knivskarp text för OnePlus & iPhone */
-            overscroll-behavior-y: none; /* Stoppar irriterande "bounce" när man scrollar */
+            margin: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; 
+            background-color: #000; color: #fff; 
+            padding: max(20px, env(safe-area-inset-top)) 20px 100px 20px;
+            -webkit-font-smoothing: antialiased; overscroll-behavior-y: none;
         }
 
-        /* Glassmorphism Header */
         .header-panel {
-            background: rgba(214, 40, 40, 0.1);
-            backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
-            border: 1px solid rgba(214, 40, 40, 0.2);
-            border-radius: 24px;
-            padding: 20px;
-            text-align: center;
-            margin-bottom: 30px;
+            background: rgba(214, 40, 40, 0.1); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(214, 40, 40, 0.2); border-radius: 24px; padding: 20px;
+            text-align: center; margin-bottom: 25px;
         }
-        
         .header-title { margin: 0; font-size: 32px; font-weight: 900; letter-spacing: -1px; }
-        .text-red { color: var(--red); }
-
-        /* Paneler */
-        .panel { 
-            background-color: var(--panel); 
-            border-radius: 20px; 
-            padding: 25px; 
-            margin-bottom: 25px; 
-            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
-        }
-
-        /* Turbo Button - 120Hz Optimized */
-        .btn-ultra { 
-            width: 100%; 
-            padding: 20px; 
-            background-color: var(--red); 
-            color: #fff; 
-            border: none; 
-            border-radius: 16px; 
-            font-size: 20px; 
-            font-weight: 800; 
-            cursor: pointer; 
-            position: relative;
-            overflow: hidden;
-            /* Cubic bezier för "snappy" känsla */
-            transition: transform 0.1s cubic-bezier(0, 0, 0, 1), background-color 0.2s; 
-            will-change: transform; /* Säger till GPU:n att förbereda animationen */
-        }
         
-        .btn-ultra:active { transform: scale(0.95); }
-
-        /* Turbo Laddning (Ripple effect) */
-        .turbo-ripple {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            width: 300px;
-            height: 300px;
-            background: rgba(255, 255, 255, 0.4);
-            border-radius: 50%;
-            transform: translate(-50%, -50%) scale(0);
-            animation: warpCharge 0.4s ease-out;
-            pointer-events: none;
+        .panel { 
+            background-color: var(--panel); border-radius: 24px; padding: 25px; 
+            margin-bottom: 20px; border: 1px solid #1f1f1f;
         }
 
-        @keyframes warpCharge {
-            0% { transform: translate(-50%, -50%) scale(0); opacity: 1; }
-            100% { transform: translate(-50%, -50%) scale(1); opacity: 0; }
-        }
-
-        /* Inputs */
-        .label { font-size: 12px; color: #888; font-weight: bold; text-transform: uppercase; margin-bottom: 10px; display: block; }
+        .label { font-size: 12px; color: #888; font-weight: bold; text-transform: uppercase; margin-bottom: 15px; display: block; }
+        
+        /* Knappar och Inputs */
         input[type="range"] { width: 100%; accent-color: var(--red); margin-bottom: 25px; }
-        .toggle-row { display: flex; justify-content: space-between; align-items: center; font-size: 16px; font-weight: 500; }
+        .toggle-row { display: flex; justify-content: space-between; align-items: center; font-size: 16px; font-weight: 500; margin-bottom: 15px; }
         input[type="checkbox"] { width: 24px; height: 24px; accent-color: var(--red); }
-
-        /* Brain Status Box */
-        #brain-box {
-            border-left: 6px solid var(--green);
-            background: #111;
-            padding: 15px 20px;
-            border-radius: 16px;
-            display: none;
-            margin-bottom: 25px;
-            transition: all 0.3s ease;
+        
+        input[type="text"] {
+            width: 100%; background: #0a0a0a; border: 1px solid #333; color: #fff;
+            padding: 15px; border-radius: 12px; font-size: 16px; box-sizing: border-box;
         }
 
+        /* Chips för PMS Dagbok */
+        .chip-group { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 20px; }
+        .chip {
+            background: #222; border: 1px solid #333; padding: 10px 16px; border-radius: 20px;
+            font-size: 14px; cursor: pointer; transition: all 0.2s; user-select: none;
+        }
+        .chip.active { background: var(--red); border-color: var(--red); color: white; font-weight: bold; }
+
+        /* Turbo Button */
+        .btn-ultra { 
+            width: 100%; padding: 20px; background-color: var(--red); color: #fff; 
+            border: none; border-radius: 16px; font-size: 20px; font-weight: 900; 
+            position: relative; overflow: hidden;
+            transition: transform 0.1s cubic-bezier(0, 0, 0, 1); will-change: transform; 
+        }
+        .btn-ultra:active { transform: scale(0.95); }
+        
+        .btn-doctor { background-color: rgba(33, 150, 243, 0.15); color: var(--blue); border: 1px solid var(--blue); font-size: 16px;}
+
+        /* Rova Brain Box */
+        #brain-box { border-left: 6px solid var(--green); background: #111; padding: 15px 20px; border-radius: 16px; display: none; margin-bottom: 20px; }
         .chart-container { position: relative; height: 220px; width: 100%; }
+
+        /* Ripple Animation */
+        .turbo-ripple {
+            position: absolute; top: 50%; left: 50%; width: 300px; height: 300px;
+            background: rgba(255, 255, 255, 0.4); border-radius: 50%;
+            transform: translate(-50%, -50%) scale(0); animation: warpCharge 0.4s ease-out; pointer-events: none;
+        }
+        @keyframes warpCharge { 0% { transform: translate(-50%, -50%) scale(0); opacity: 1; } 100% { transform: translate(-50%, -50%) scale(1); opacity: 0; } }
     </style>
 </head>
 <body>
 
     <div class="header-panel">
-        <h1 class="header-title">ROVA <span class="text-red">ULTRA</span></h1>
-        <div style="color: #888; font-size: 14px; margin-top: 5px;">Klinisk Profil: Bella</div>
+        <h1 class="header-title">ROVA <span style="color: var(--red);">ULTRA</span></h1>
     </div>
 
     <div id="brain-box">
-        <div id="brain-status" style="font-weight: 900; font-size: 12px; letter-spacing: 1px; margin-bottom: 5px;">STATUS: OPTIMAL</div>
-        <div id="brain-advice" style="font-size: 15px; color: #ddd; line-height: 1.4;">Laddar systemdata...</div>
+        <div id="brain-status" style="font-weight: 900; font-size: 12px; margin-bottom: 5px;">STATUS: LADDAR</div>
+        <div id="brain-advice" style="font-size: 15px; color: #ddd; line-height: 1.4;">Analyserar data...</div>
     </div>
 
     <div class="panel">
         <button class="btn-ultra" id="logBtn" onclick="triggerTurboLog(event)">LOGGA DOS ⚡</button>
-
         <div style="margin-top: 30px;">
             <label class="label" id="mood-label">Dagsform: 7/10</label>
             <input type="range" id="mood" min="1" max="10" value="7" oninput="updateMoodLabel(this.value)">
             
             <div class="toggle-row">
-                <span>Spotting / Blödning idag?</span>
+                <span>🩸 Spotting / Blödning</span>
                 <input type="checkbox" id="spotting">
             </div>
         </div>
     </div>
 
-    <div class="panel" style="padding: 15px;">
-        <div class="label" style="margin-left: 5px;">📈 TREND (Senaste 7 dgr)</div>
-        <div class="chart-container">
-            <canvas id="trendChart"></canvas>
+    <div class="panel">
+        <span class="label">📖 PMS-DAGBOK (Frivillig)</span>
+        <div class="chip-group">
+            <div class="chip" onclick="this.classList.toggle('active')">Kramper</div>
+            <div class="chip" onclick="this.classList.toggle('active')">Huvudvärk</div>
+            <div class="chip" onclick="this.classList.toggle('active')">Cravings</div>
+            <div class="chip" onclick="this.classList.toggle('active')">Ömma bröst</div>
+            <div class="chip" onclick="this.classList.toggle('active')">Trötthet</div>
         </div>
+        <input type="text" id="notes" placeholder="Egna anteckningar idag..." autocomplete="off">
+    </div>
+
+    <div class="panel" style="padding: 15px 25px;">
+        <span class="label">📈 TREND (7 DGR)</span>
+        <div class="chart-container"><canvas id="trendChart"></canvas></div>
+    </div>
+
+    <div class="panel" style="text-align: center;">
+        <span class="label" style="color: var(--blue);">👨‍⚕️ KLINISK EXPORT</span>
+        <p style="font-size: 13px; color: #888; margin-bottom: 20px;">
+            Generera en krypterad sammanfattning av de senaste 14 dagarna till Dr. Jens.
+        </p>
+        <button class="btn-ultra btn-doctor" onclick="exportToDoctor()">Dela rapport med Läkare 📤</button>
     </div>
 
     <script>
         let myChart = null;
 
-        // UI Uppdateringar
-        function updateMoodLabel(val) {
-            document.getElementById('mood-label').innerText = `Dagsform: ${val}/10`;
-        }
+        function updateMoodLabel(val) { document.getElementById('mood-label').innerText = `Dagsform: ${val}/10`; }
 
-        // Turbo-Animation & Loggning
         function triggerTurboLog(event) {
             const btn = document.getElementById('logBtn');
-            
-            // Skapa Warp Charge Ripple
             const ripple = document.createElement('span');
             ripple.classList.add('turbo-ripple');
             btn.appendChild(ripple);
-            
-            // Vibrera telefonen (Haptic Feedback) om webbläsaren stödjer det
             if (navigator.vibrate) navigator.vibrate([50, 50, 50]);
-
-            // Vänta lite så animationen syns, spara sen
-            setTimeout(() => {
-                ripple.remove();
-                saveData();
-            }, 300);
+            setTimeout(() => { ripple.remove(); saveData(); }, 300);
         }
 
         function saveData() {
             let logs = JSON.parse(localStorage.getItem('rovaLogs')) || [];
             
+            // Samla in aktiva PMS-chips
+            let activeChips = Array.from(document.querySelectorAll('.chip.active')).map(el => el.innerText);
+
             let entry = {
                 date: new Date().toLocaleDateString('sv-SE', {day: 'numeric', month: 'short'}),
                 mood: parseInt(document.getElementById('mood').value),
-                spotting: document.getElementById('spotting').checked
+                spotting: document.getElementById('spotting').checked,
+                pms: activeChips,
+                notes: document.getElementById('notes').value
             };
             
             logs.push(entry);
             localStorage.setItem('rovaLogs', JSON.stringify(logs));
             
+            // Rensa formuläret
+            document.querySelectorAll('.chip.active').forEach(el => el.classList.remove('active'));
+            document.getElementById('notes').value = '';
+            document.getElementById('spotting').checked = false;
+
             updateBrainAndChart();
+            alert("Data sparad i Rova-hjärnan! ✅");
         }
 
-        // Avancerad Rova-Brain
         function updateBrainAndChart() {
             let logs = JSON.parse(localStorage.getItem('rovaLogs')) || [];
             if (logs.length === 0) return;
 
-            // --- 1. Rova Brain Logik ---
-            const recentLogs = logs.slice(-14); // Titta på de 14 senaste
+            // Rova Brain
+            const recentLogs = logs.slice(-14);
             const spottingDays = recentLogs.filter(l => l.spotting).length;
-            const avgMood = recentLogs.reduce((acc, curr) => acc + curr.mood, 0) / recentLogs.length;
+            const avgMood = recentLogs.reduce((a, c) => a + c.mood, 0) / recentLogs.length;
 
             const brainBox = document.getElementById('brain-box');
             const statusEl = document.getElementById('brain-status');
             const adviceEl = document.getElementById('brain-advice');
-            
             brainBox.style.display = 'block';
 
             if (avgMood < 4) {
                 brainBox.style.borderLeftColor = 'var(--red)';
-                statusEl.style.color = 'var(--red)';
-                statusEl.innerText = 'STATUS: KRITISK ⚠️';
-                adviceEl.innerText = `Sänkt dagsform detekterad (Snitt: ${avgMood.toFixed(1)}/10). Monitorera noggrant.`;
+                statusEl.style.color = 'var(--red)'; statusEl.innerText = 'STATUS: KRITISK ⚠️';
+                adviceEl.innerText = `Sänkt dagsform (Snitt: ${avgMood.toFixed(1)}/10). Monitorera noggrant.`;
             } else if (spottingDays > 4) {
                 brainBox.style.borderLeftColor = 'var(--orange)';
-                statusEl.style.color = 'var(--orange)';
-                statusEl.innerText = 'STATUS: ADAPTION 🔄';
-                adviceEl.innerText = `Hög frekvens spotting (${spottingDays} dgr). Förväntat beteende månad 1-3. Drick vatten.`;
+                statusEl.style.color = 'var(--orange)'; statusEl.innerText = 'STATUS: ADAPTION 🔄';
+                adviceEl.innerText = `Hög frekvens spotting (${spottingDays} dgr). Normalt månad 1-3.`;
             } else {
                 brainBox.style.borderLeftColor = 'var(--green)';
-                statusEl.style.color = 'var(--green)';
-                statusEl.innerText = 'STATUS: OPTIMAL ✅';
-                adviceEl.innerText = `Systemet körs inom normalvärden. Utmärkt följsamhet.`;
+                statusEl.style.color = 'var(--green)'; statusEl.innerText = 'STATUS: OPTIMAL ✅';
+                adviceEl.innerText = `Utmärkt följsamhet och stabilt system.`;
             }
 
-            // --- 2. Chart.js Uppdatering (120Hz Optimized) ---
-            const chartData = logs.slice(-7); // Visa bara senaste 7 i grafen
-            const labels = chartData.map(l => l.date);
-            const data = chartData.map(l => l.mood);
-
+            // Chart.js
+            const chartData = logs.slice(-7);
             if (myChart) {
-                myChart.data.labels = labels;
-                myChart.data.datasets[0].data = data;
+                myChart.data.labels = chartData.map(l => l.date);
+                myChart.data.datasets[0].data = chartData.map(l => l.mood);
                 myChart.update();
             } else {
-                const ctx = document.getElementById('trendChart').getContext('2d');
-                myChart = new Chart(ctx, {
+                myChart = new Chart(document.getElementById('trendChart').getContext('2d'), {
                     type: 'line',
                     data: {
-                        labels: labels,
-                        datasets: [{
-                            label: 'Humör',
-                            data: data,
-                            borderColor: '#d62828',
-                            backgroundColor: 'rgba(214, 40, 40, 0.1)',
-                            borderWidth: 3,
-                            pointBackgroundColor: '#d62828',
-                            pointRadius: 4
+                        labels: chartData.map(l => l.date),
+                        datasets: [{ data: chartData.map(l => l.mood), borderColor: '#d62828', backgroundColor: 'rgba(214,40,40,0.1)', borderWidth: 3, pointBackgroundColor: '#d62828', fill: true, tension: 0.4 }]
+                    },
+                    options: { responsive: true, maintainAspectRatio: false, animation: { duration: 300 }, plugins: { legend: { display: false } }, scales: { y: { min: 0, max: 10, grid: { color: '#222' }, ticks: { color: '#666' } }, x: { grid: { display: false }, ticks: { color: '#666' } } } }
+                });
+            }
+        }
+
+        // Läkarexport
+        function exportToDoctor() {
+            let logs = JSON.parse(localStorage.getItem('rovaLogs')) || [];
+            if (logs.length === 0) {
+                alert("Ingen data att exportera ännu."); return;
+            }
+            
+            const recent = logs.slice(-14);
+            const spottingCount = recent.filter(l => l.spotting).length;
+            const avgMood = (recent.reduce((a, c) => a + c.mood, 0) / recent.length).toFixed(1);
+            
+            let emailBody = `KLINISK RAPPORT - ROVA ULTRA\nPatient: Bella\nPeriod: Senaste 14 dagarna\n\n`;
+            emailBody += `STATISTIK:\n- Snitt dagsform: ${avgMood}/10\n- Dagar med spotting: ${spottingCount}\n\nDAGBOKSNOTERINGAR:\n`;
+            
+            recent.forEach(l => {
+                let pmsString = l.pms && l.pms.length > 0 ? ` (Symtom: ${l.pms.join(', ')})` : "";
+                let notesString = l.notes ? ` - Info: ${l.notes}` : "";
+                emailBody += `[${l.date}] Humör: ${l.mood}/10 | Blödning: ${l.spotting ? 'Ja' : 'Nej'}${pmsString}${notesString}\n`;
+            });
+
+            // Ersätt med läkarens riktiga mail om du vill
+            const doctorEmail = "lakare@exempel.se"; 
+            window.location.href = `mailto:${doctorEmail}?subject=Klinisk Rapport: Bella (Slinda)&body=${encodeURIComponent(emailBody)}`;
+        }
+
+        window.onload = updateBrainAndChart;
+
+        if ('serviceWorker' in navigator) { navigator.serviceWorker.register('sw.js'); }
+    </script>
+</body>
+</html>
