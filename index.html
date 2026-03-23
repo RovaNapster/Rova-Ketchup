@@ -51,6 +51,7 @@
     <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
     <script src="https://unpkg.com/recharts/umd/Recharts.js"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
+    
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
 
     <style>
@@ -79,7 +80,7 @@
         .dark .premium-glass {
             background: linear-gradient(145deg, rgba(30, 30, 30, 0.65) 0%, rgba(15, 15, 15, 0.45) 100%);
             border: 1px solid rgba(255, 255, 255, 0.08);
-            border-top: 1px solid rgba(255, 255, 255, 0.15);
+            border-top: 1px solid rgba(255, 255, 255, 0.15); /* Lyxig top-highlight */
             box-shadow: 0 10px 40px -10px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.05);
         }
 
@@ -184,7 +185,7 @@
         };
 
         const App = () => {
-            // --- STATE ---
+            // --- STATE (PATCH 2: Persistens vid omladdning) ---
             const [isDark, setIsDark] = useState(() => localStorage.getItem('rovaTheme') !== 'light');
             const [logs, setLogs] = useState(() => safeGetItem('rovaLogs', []));
             
@@ -238,6 +239,7 @@
                 setTimeout(() => { if (window.lucide) window.lucide.createIcons(); }, 50);
             }, [isDark, showTerminal, hasDosed, pmsTags, spotting]);
 
+            // (PATCH 3: "The Save Paradox" - Spara symtom tyst i bakgrunden)
             useEffect(() => {
                 if (!hasDosed) return;
                 
@@ -322,7 +324,7 @@
             const handleDose = () => {
                 if (hasDosed) return;
                 haptic('success');
-                fireConfetti();
+                fireConfetti(); // Kasta konfetti! 🎉
                 
                 const time = new Date().toLocaleTimeString('sv-SE', { hour: '2-digit', minute: '2-digit' });
                 
@@ -385,7 +387,7 @@
 
                     <main className="max-w-md mx-auto space-y-6">
                         
-                        {/* Huvudknapp */}
+                        {/* Huvudknapp (Sexy Edition) */}
                         <div className="premium-glass rounded-[2.5rem] p-2.5 z-10 relative">
                             <button 
                                 onClick={handleDose}
@@ -395,6 +397,7 @@
                                     ? 'bg-gradient-to-br from-emerald-400 to-emerald-600 text-white shadow-[0_10px_25px_-5px_rgba(16,185,129,0.5)] cursor-default' 
                                     : 'bg-gradient-to-br from-red-500 to-red-700 text-white animate-breathe active:scale-[0.97] hover:brightness-110'}`}
                             >
+                                {/* Shine effect */}
                                 {!hasDosed && <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent animate-shine opacity-50"></div>}
                                 
                                 <div className={`p-3.5 rounded-full ${hasDosed ? 'bg-emerald-500/50 shadow-[0_0_20px_rgba(16,185,129,0.5)]' : 'bg-red-400/40 shadow-[0_0_20px_rgba(255,255,255,0.2)]'}`}>
@@ -479,6 +482,7 @@
                             </div>
                         </div>
 
+                        {/* Render the terminal ON TOP of everything if active */}
                         {showTerminal && (
                             <AdminTerminal 
                                 logs={logs} 
@@ -494,16 +498,6 @@
 
         const root = ReactDOM.createRoot(document.getElementById('root'));
         root.render(<App />);
-    </script>
-
-    <script>
-        if ('serviceWorker' in navigator) {
-            window.addEventListener('load', () => {
-                navigator.serviceWorker.register('./sw.js')
-                    .then(reg => console.log('SW Registered:', reg.scope))
-                    .catch(err => console.log('SW Registration failed:', err));
-            });
-        }
     </script>
 </body>
 </html>
