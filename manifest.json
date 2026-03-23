@@ -1,15 +1,20 @@
 {
-  "name": "Rova Ketchup Pro",
-  "short_name": "Rova",
+  "name": "Ketchup PMS - Rova Edition",
+  "short_name": "Ketchup",
   "start_url": "./index.html",
   "display": "standalone",
-  "background_color": "#000000",
-  "theme_color": "#000000",
-  "orientation": "portrait",
+  "background_color": "#030303",
+  "theme_color": "#e63946",
+  "orientation": "portrait-primary",
   "icons": [
     {
       "src": "https://emojigraph.org/media/apple/tomato_1f345.png",
       "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "https://emojigraph.org/media/apple/tomato_1f345.png",
+      "sizes": "512x512",
       "type": "image/png"
     }
   ]

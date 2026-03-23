@@ -51,6 +51,8 @@
     <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
     <script src="https://unpkg.com/recharts/umd/Recharts.js"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
+    
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
 
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700;800;900&family=Share+Tech+Mono&display=swap');
@@ -266,6 +268,32 @@
                 } catch (e) { console.warn("Haptic failed", e); }
             }, []);
 
+            const fireConfetti = useCallback(() => {
+                const duration = 2000;
+                const end = Date.now() + duration;
+
+                (function frame() {
+                    confetti({
+                        particleCount: 3,
+                        angle: 60,
+                        spread: 55,
+                        origin: { x: 0, y: 0.8 },
+                        colors: ['#e63946', '#10b981', '#ffffff']
+                    });
+                    confetti({
+                        particleCount: 3,
+                        angle: 120,
+                        spread: 55,
+                        origin: { x: 1, y: 0.8 },
+                        colors: ['#e63946', '#10b981', '#ffffff']
+                    });
+
+                    if (Date.now() < end) {
+                        requestAnimationFrame(frame);
+                    }
+                }());
+            }, []);
+
             const handleLogoClick = useCallback(() => {
                 if (!window.logoClicks) window.logoClicks = 0;
                 window.logoClicks++;
@@ -296,6 +324,8 @@
             const handleDose = () => {
                 if (hasDosed) return;
                 haptic('success');
+                fireConfetti(); // Kasta konfetti! 🎉
+                
                 const time = new Date().toLocaleTimeString('sv-SE', { hour: '2-digit', minute: '2-digit' });
                 
                 setHasDosed(true);
@@ -351,15 +381,14 @@
                             className="p-4 premium-glass rounded-full active:scale-90 smooth-transition hover:shadow-lg hover:-translate-y-0.5" 
                             aria-label="Toggle Theme"
                         >
-                            {/* (PATCH 1: Unika nycklar för ikonerna förhindrar React DOM-krasch) */}
                             <i key={`theme-icon-${isDark}`} data-lucide={isDark ? "sun" : "moon"} className={`w-5 h-5 ${isDark ? 'text-yellow-400 drop-shadow-[0_0_12px_rgba(250,204,21,0.6)]' : 'text-slate-600'}`}></i>
                         </button>
                     </header>
 
                     <main className="max-w-md mx-auto space-y-6">
                         
-                        {/* Huvudknapp */}
-                        <div className="premium-glass rounded-[2.5rem] p-2.5">
+                        {/* Huvudknapp (Sexy Edition) */}
+                        <div className="premium-glass rounded-[2.5rem] p-2.5 z-10 relative">
                             <button 
                                 onClick={handleDose}
                                 disabled={hasDosed}
@@ -368,10 +397,10 @@
                                     ? 'bg-gradient-to-br from-emerald-400 to-emerald-600 text-white shadow-[0_10px_25px_-5px_rgba(16,185,129,0.5)] cursor-default' 
                                     : 'bg-gradient-to-br from-red-500 to-red-700 text-white animate-breathe active:scale-[0.97] hover:brightness-110'}`}
                             >
+                                {/* Shine effect */}
                                 {!hasDosed && <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent animate-shine opacity-50"></div>}
                                 
                                 <div className={`p-3.5 rounded-full ${hasDosed ? 'bg-emerald-500/50 shadow-[0_0_20px_rgba(16,185,129,0.5)]' : 'bg-red-400/40 shadow-[0_0_20px_rgba(255,255,255,0.2)]'}`}>
-                                    {/* (PATCH 1) */}
                                     <i key={`dose-icon-${hasDosed}`} data-lucide={hasDosed ? "check" : "zap"} className="w-8 h-8 drop-shadow-lg text-white"></i>
                                 </div>
                                 <span className="text-2xl font-black tracking-widest drop-shadow-md z-10">{hasDosed ? 'SYSTEM_ARMED' : 'TA DOSEN'}</span>
@@ -452,17 +481,17 @@
                                 </ResponsiveContainer>
                             </div>
                         </div>
+
+                        {/* Render the terminal ON TOP of everything if active */}
+                        {showTerminal && (
+                            <AdminTerminal 
+                                logs={logs} 
+                                onExit={() => setShowTerminal(false)} 
+                                onClear={() => { if(confirm("CRITICAL WARNING: Radera databas?")) { setLogs([]); haptic('heavy'); } }}
+                            />
+                        )}
+                        
                     </main>
-
-                    {/* (PATCH 4: Z-index fällan löst genom att rendera utanför <main>) */}
-                    {showTerminal && (
-                        <AdminTerminal 
-                            logs={logs} 
-                            onExit={() => setShowTerminal(false)} 
-                            onClear={() => { if(confirm("CRITICAL WARNING: Radera databas?")) { setLogs([]); haptic('heavy'); } }}
-                        />
-                    )}
-
                 </div>
             );
         };
