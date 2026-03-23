@@ -1,0 +1,503 @@
+<!DOCTYPE html>
+<html lang="sv" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>KETCHUP PMS - Rova Edition</title>
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <link rel="apple-touch-icon" href="https://emojigraph.org/media/apple/tomato_1f345.png">
+    <link rel="manifest" href="manifest.json">
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: { 
+                        oled: '#030303', 
+                        ketchup: '#e63946', 
+                        ketchupDark: '#b91c28', 
+                        matrix: '#39ff14',
+                        slate: { 850: '#151e2e' }
+                    },
+                    boxShadow: {
+                        'glass': '0 8px 32px 0 rgba(0, 0, 0, 0.05)',
+                        'glass-dark': '0 8px 32px 0 rgba(0, 0, 0, 0.4)',
+                        'neon': '0 0 20px rgba(230, 57, 70, 0.4)'
+                    },
+                    animation: {
+                        'breathe': 'breathe 3s ease-in-out infinite',
+                        'shine': 'shine 4s infinite linear'
+                    },
+                    keyframes: {
+                        breathe: {
+                            '0%, 100%': { boxShadow: '0 10px 25px -5px rgba(230,57,70,0.4)' },
+                            '50%': { boxShadow: '0 15px 40px -5px rgba(230,57,70,0.7)' },
+                        },
+                        shine: {
+                            '0%': { transform: 'translateX(-150%) skewX(-20deg)' },
+                            '20%, 100%': { transform: 'translateX(200%) skewX(-20deg)' }
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    <script src="https://unpkg.com/recharts/umd/Recharts.js"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700;800;900&family=Share+Tech+Mono&display=swap');
+        
+        body { 
+            font-family: 'Inter', sans-serif; 
+            background-color: #f1f5f9; 
+            color: #0f172a;
+            overscroll-behavior-y: none;
+            transition: background-color 0.5s ease, color 0.5s ease;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        .dark body { background-color: #030303; color: #f8fafc; }
+
+        /* Förfinad Glassmorphism */
+        .premium-glass {
+            background: rgba(255, 255, 255, 0.75);
+            backdrop-filter: blur(24px); -webkit-backdrop-filter: blur(24px);
+            border: 1px solid rgba(255, 255, 255, 0.6);
+            box-shadow: 0 10px 40px -10px rgba(0,0,0,0.08);
+            transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .dark .premium-glass {
+            background: linear-gradient(145deg, rgba(30, 30, 30, 0.65) 0%, rgba(15, 15, 15, 0.45) 100%);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-top: 1px solid rgba(255, 255, 255, 0.15); /* Lyxig top-highlight */
+            box-shadow: 0 10px 40px -10px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.05);
+        }
+
+        /* Terminal Scanlines */
+        .scanlines::before {
+            content: " "; display: block; position: fixed; top: 0; left: 0; bottom: 0; right: 0;
+            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%);
+            z-index: 50; background-size: 100% 4px; pointer-events: none;
+        }
+
+        .matrix-glow { text-shadow: 0 0 12px rgba(57, 255, 20, 0.9); }
+        .smooth-transition { transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1); }
+
+        button { will-change: transform; touch-action: pan-y; }
+
+        /* Super-Smooth Slider */
+        input[type=range] { -webkit-appearance: none; width: 100%; background: transparent; touch-action: pan-y; }
+        input[type=range]:focus { outline: none; }
+        
+        input[type=range]::-webkit-slider-thumb { 
+            -webkit-appearance: none; 
+            height: 30px; width: 30px; 
+            border-radius: 50%; 
+            background: #e63946; 
+            cursor: pointer; 
+            margin-top: -12px; 
+            box-shadow: 0 4px 12px rgba(230, 57, 70, 0.4), inset 0 -2px 5px rgba(0,0,0,0.2); 
+            transition: transform 0.15s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.15s; 
+            border: 2.5px solid white; 
+            will-change: transform;
+        }
+        .dark input[type=range]::-webkit-slider-thumb { border-color: #1a1a1a; box-shadow: 0 4px 12px rgba(230, 57, 70, 0.6), inset 0 -2px 5px rgba(0,0,0,0.4); }
+        input[type=range]::-webkit-slider-thumb:active { transform: scale(1.1); box-shadow: 0 2px 6px rgba(230, 57, 70, 0.7); }
+        
+        input[type=range]::-webkit-slider-runnable-track { 
+            width: 100%; height: 6px; 
+            cursor: pointer; 
+            background: #cbd5e1; 
+            border-radius: 6px; 
+            box-shadow: inset 0 1px 3px rgba(0,0,0,0.1);
+        }
+        .dark input[type=range]::-webkit-slider-runnable-track { background: #2a2a2a; box-shadow: inset 0 1px 3px rgba(0,0,0,0.5); }
+    </style>
+</head>
+<body>
+    <div id="root"></div>
+
+    <script type="text/babel">
+        const { useState, useEffect, useRef, useCallback, useMemo } = React;
+        const { AreaChart, Area, ResponsiveContainer, Tooltip } = Recharts;
+
+        // --- HJÄLPO-FUNKTIONER ---
+        const safeGetItem = (key, defaultValue) => {
+            try { return JSON.parse(localStorage.getItem(key)) || defaultValue; } 
+            catch { return defaultValue; }
+        };
+
+        const safeSetItem = (key, value) => {
+            try { localStorage.setItem(key, JSON.stringify(value)); } 
+            catch (e) { console.error("LocalStorage error:", e); }
+        };
+
+        const getTodayString = () => new Date().toLocaleDateString('sv-SE', { day: 'numeric', month: 'short' });
+
+        // --- KOMPONENTER ---
+        const AdminTerminal = ({ logs, onExit, onClear }) => {
+            const [authed, setAuthed] = useState(false);
+
+            if (!authed) {
+                return (
+                    <div className="fixed inset-0 bg-black/95 backdrop-blur-sm text-matrix font-mono p-6 overflow-y-auto scanlines z-[9999] selection:bg-matrix selection:text-black flex flex-col justify-center max-w-md mx-auto p-8">
+                        <h2 className="matrix-glow text-2xl mb-10 font-black tracking-widest uppercase blink">Rova_Encryption</h2>
+                        <input 
+                            type="password" placeholder="ENTER PASSKEY_"
+                            className="bg-transparent border-b-2 border-matrix p-2 text-2xl outline-none text-matrix focus:border-white transition-colors"
+                            onChange={e => { if(e.target.value === "rova6666") { setAuthed(true); }}} autoFocus
+                        />
+                        <button onClick={onExit} className="mt-16 text-xs opacity-50 underline text-left hover:text-white hover:opacity-100 transition-all tracking-widest">ABORT_SYSTEM_EXIT</button>
+                    </div>
+                );
+            }
+
+            return (
+                <div className="fixed inset-0 bg-black/95 backdrop-blur-sm text-matrix font-mono p-6 overflow-y-auto scanlines z-[9999] selection:bg-matrix selection:text-black">
+                    <div className="max-w-2xl mx-auto pb-10">
+                        <div className="flex justify-between items-center border-b-2 border-matrix mb-6 pb-4">
+                            <span className="matrix-glow font-black tracking-widest text-lg">SYS_ADMIN@ROVA</span>
+                            <button onClick={onExit} className="hover:text-black hover:bg-matrix border-2 border-matrix px-4 py-1.5 text-sm font-bold transition-colors shadow-[0_0_10px_rgba(57,255,20,0.3)]">[EXIT]</button>
+                        </div>
+                        <div className="text-xs mb-8 opacity-90 bg-[#051005] p-5 border-2 border-[#1a3a1a] overflow-x-auto h-96 shadow-[inset_0_0_20px_rgba(0,0,0,0.8)] rounded-lg">
+                            <pre className="leading-relaxed">{logs.length > 0 ? JSON.stringify(logs.slice(-50), null, 2) : "NO_DATA_FOUND"}</pre>
+                        </div>
+                        <button 
+                            onClick={onClear} 
+                            className="w-full border-2 border-red-600 text-red-500 p-5 hover:bg-red-600 hover:text-black hover:shadow-[0_0_20px_rgba(220,38,38,0.6)] font-black transition-all uppercase tracking-widest rounded-lg"
+                        >
+                            [ EXECUTE: NUKE_DATABASE ]
+                        </button>
+                    </div>
+                </div>
+            );
+        };
+
+        const App = () => {
+            // --- STATE (PATCH 2: Persistens vid omladdning) ---
+            const [isDark, setIsDark] = useState(() => localStorage.getItem('rovaTheme') !== 'light');
+            const [logs, setLogs] = useState(() => safeGetItem('rovaLogs', []));
+            
+            const [hasDosed, setHasDosed] = useState(() => {
+                const initialLogs = safeGetItem('rovaLogs', []);
+                return initialLogs.some(l => l.action === 'DOSE_TAKEN' && l.date === getTodayString());
+            });
+
+            const [doseInfo, setDoseInfo] = useState(() => {
+                const initialLogs = safeGetItem('rovaLogs', []);
+                const todayLog = initialLogs.find(l => l.action === 'DOSE_TAKEN' && l.date === getTodayString());
+                if (todayLog) {
+                    const time = new Date(todayLog.timestamp).toLocaleTimeString('sv-SE', { hour: '2-digit', minute: '2-digit' });
+                    return { time, loc: todayLog.location ? `📍 ${todayLog.location}` : "📍 Sparad" };
+                }
+                return null;
+            });
+            
+            const [mood, setMood] = useState(() => {
+                const todayLog = safeGetItem('rovaLogs', []).find(l => l.action === 'DOSE_TAKEN' && l.date === getTodayString());
+                return todayLog ? todayLog.mood : 7;
+            });
+            
+            const [spotting, setSpotting] = useState(() => {
+                const todayLog = safeGetItem('rovaLogs', []).find(l => l.action === 'DOSE_TAKEN' && l.date === getTodayString());
+                return todayLog ? todayLog.spotting : false;
+            });
+            
+            const [pmsTags, setPmsTags] = useState(() => {
+                const todayLog = safeGetItem('rovaLogs', []).find(l => l.action === 'DOSE_TAKEN' && l.date === getTodayString());
+                return todayLog && todayLog.pmsTags ? todayLog.pmsTags : [];
+            });
+            
+            const [showTerminal, setShowTerminal] = useState(false);
+            const clickTimer = useRef(null);
+
+            const availableTags = useMemo(() => ['🤯 Huvudvärk', '⚡ Kramper', '🍫 Cravings', '😴 Trött', '💧 Svullen'], []);
+
+            // --- EFFEKTER ---
+            useEffect(() => { safeSetItem('rovaLogs', logs); }, [logs]);
+
+            useEffect(() => {
+                const root = document.documentElement;
+                if (isDark) {
+                    root.classList.add('dark');
+                    localStorage.setItem('rovaTheme', 'dark');
+                } else {
+                    root.classList.remove('dark');
+                    localStorage.setItem('rovaTheme', 'light');
+                }
+                setTimeout(() => { if (window.lucide) window.lucide.createIcons(); }, 50);
+            }, [isDark, showTerminal, hasDosed, pmsTags, spotting]);
+
+            // (PATCH 3: "The Save Paradox" - Spara symtom tyst i bakgrunden)
+            useEffect(() => {
+                if (!hasDosed) return;
+                
+                setLogs(prevLogs => {
+                    const updatedLogs = [...prevLogs];
+                    const todayIndex = updatedLogs.findIndex(l => l.date === getTodayString() && l.action === 'DOSE_TAKEN');
+                    
+                    if (todayIndex !== -1) {
+                        updatedLogs[todayIndex] = {
+                            ...updatedLogs[todayIndex],
+                            mood: mood,
+                            spotting: spotting,
+                            pmsTags: pmsTags
+                        };
+                    }
+                    return updatedLogs;
+                });
+            }, [mood, spotting, pmsTags, hasDosed]);
+
+            // --- FUNKTIONER ---
+            const haptic = useCallback((type) => {
+                if (!window.navigator || !window.navigator.vibrate) return;
+                try {
+                    const patterns = { 'success': [40, 30, 40], 'error': [100, 50, 100], 'light': 15, 'heavy': 200 };
+                    window.navigator.vibrate(patterns[type] || 15);
+                } catch (e) { console.warn("Haptic failed", e); }
+            }, []);
+
+            const fireConfetti = useCallback(() => {
+                const duration = 2000;
+                const end = Date.now() + duration;
+
+                (function frame() {
+                    confetti({
+                        particleCount: 3,
+                        angle: 60,
+                        spread: 55,
+                        origin: { x: 0, y: 0.8 },
+                        colors: ['#e63946', '#10b981', '#ffffff']
+                    });
+                    confetti({
+                        particleCount: 3,
+                        angle: 120,
+                        spread: 55,
+                        origin: { x: 1, y: 0.8 },
+                        colors: ['#e63946', '#10b981', '#ffffff']
+                    });
+
+                    if (Date.now() < end) {
+                        requestAnimationFrame(frame);
+                    }
+                }());
+            }, []);
+
+            const handleLogoClick = useCallback(() => {
+                if (!window.logoClicks) window.logoClicks = 0;
+                window.logoClicks++;
+                
+                if (clickTimer.current) clearTimeout(clickTimer.current);
+                clickTimer.current = setTimeout(() => { window.logoClicks = 0; }, 1500);
+                
+                if (window.logoClicks >= 4) {
+                    haptic('heavy');
+                    setShowTerminal(true);
+                    window.logoClicks = 0; 
+                }
+            }, [haptic]);
+
+            const logAction = useCallback((actionType, extraData = {}) => {
+                setLogs(prev => [...prev, {
+                    id: Date.now(),
+                    date: getTodayString(),
+                    timestamp: new Date().toISOString(),
+                    action: actionType,
+                    mood,
+                    spotting,
+                    pmsTags,
+                    ...extraData
+                }]);
+            }, [mood, spotting, pmsTags]);
+
+            const handleDose = () => {
+                if (hasDosed) return;
+                haptic('success');
+                fireConfetti(); // Kasta konfetti! 🎉
+                
+                const time = new Date().toLocaleTimeString('sv-SE', { hour: '2-digit', minute: '2-digit' });
+                
+                setHasDosed(true);
+                setDoseInfo({ time, loc: "📍 Söker..." });
+
+                if ("geolocation" in navigator) {
+                    navigator.geolocation.getCurrentPosition(
+                        (pos) => {
+                            const loc = `${pos.coords.latitude.toFixed(2)}, ${pos.coords.longitude.toFixed(2)}`;
+                            setDoseInfo({ time, loc: `📍 ${loc}` });
+                            logAction('DOSE_TAKEN', { location: loc });
+                        },
+                        () => {
+                            setDoseInfo({ time, loc: "📍 Offline" });
+                            logAction('DOSE_TAKEN', { location: 'HIDDEN' });
+                        },
+                        { timeout: 5000 }
+                    );
+                } else {
+                    setDoseInfo({ time, loc: "📍 Krypterad" });
+                    logAction('DOSE_TAKEN', { location: 'DISABLED' });
+                }
+            };
+
+            const toggleTag = useCallback((tag) => {
+                haptic('light');
+                setPmsTags(prev => prev.includes(tag) ? prev.filter(t => t !== tag) : [...prev, tag]);
+            }, [haptic]);
+
+            const chartData = useMemo(() => {
+                const data = logs.filter(l => l.action === 'DOSE_TAKEN').slice(-7).map(l => ({ name: l.date, val: l.mood }));
+                if (data.length === 0) {
+                    return [{ name: 'Idag', val: mood }];
+                }
+                return data;
+            }, [logs, mood]);
+
+            // --- RENDER ---
+            return (
+                <div className="min-h-screen px-5 pb-14 transition-colors duration-500 relative">
+                    
+                    {/* Header */}
+                    <header className="flex justify-between items-center pt-10 mb-8 pl-1">
+                        <div onClick={handleLogoClick} className="cursor-pointer select-none">
+                            <h1 className="text-4xl font-black tracking-tighter flex items-center gap-2">
+                                <span className="text-ketchup drop-shadow-lg">🍅</span> 
+                                <span className="bg-clip-text text-transparent bg-gradient-to-r from-slate-900 to-slate-600 dark:from-white dark:to-slate-400">KETCHUP</span>
+                            </h1>
+                            <p className="text-[10px] font-extrabold opacity-50 uppercase tracking-[0.3em] mt-1 ml-1 text-ketchup">Slinda Protocol 0x3B</p>
+                        </div>
+                        <button 
+                            onClick={() => { setIsDark(d => !d); haptic('light'); }} 
+                            className="p-4 premium-glass rounded-full active:scale-90 smooth-transition hover:shadow-lg hover:-translate-y-0.5" 
+                            aria-label="Toggle Theme"
+                        >
+                            <i key={`theme-icon-${isDark}`} data-lucide={isDark ? "sun" : "moon"} className={`w-5 h-5 ${isDark ? 'text-yellow-400 drop-shadow-[0_0_12px_rgba(250,204,21,0.6)]' : 'text-slate-600'}`}></i>
+                        </button>
+                    </header>
+
+                    <main className="max-w-md mx-auto space-y-6">
+                        
+                        {/* Huvudknapp (Sexy Edition) */}
+                        <div className="premium-glass rounded-[2.5rem] p-2.5 z-10 relative">
+                            <button 
+                                onClick={handleDose}
+                                disabled={hasDosed}
+                                className={`w-full py-12 rounded-[2rem] flex flex-col items-center justify-center gap-3 smooth-transition relative overflow-hidden
+                                ${hasDosed 
+                                    ? 'bg-gradient-to-br from-emerald-400 to-emerald-600 text-white shadow-[0_10px_25px_-5px_rgba(16,185,129,0.5)] cursor-default' 
+                                    : 'bg-gradient-to-br from-red-500 to-red-700 text-white animate-breathe active:scale-[0.97] hover:brightness-110'}`}
+                            >
+                                {/* Shine effect */}
+                                {!hasDosed && <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent animate-shine opacity-50"></div>}
+                                
+                                <div className={`p-3.5 rounded-full ${hasDosed ? 'bg-emerald-500/50 shadow-[0_0_20px_rgba(16,185,129,0.5)]' : 'bg-red-400/40 shadow-[0_0_20px_rgba(255,255,255,0.2)]'}`}>
+                                    <i key={`dose-icon-${hasDosed}`} data-lucide={hasDosed ? "check" : "zap"} className="w-8 h-8 drop-shadow-lg text-white"></i>
+                                </div>
+                                <span className="text-2xl font-black tracking-widest drop-shadow-md z-10">{hasDosed ? 'SYSTEM_ARMED' : 'TA DOSEN'}</span>
+                                {doseInfo && <span className="text-xs font-mono tracking-tighter opacity-90 bg-black/25 px-4 py-1.5 rounded-full z-10 backdrop-blur-sm border border-white/10">{doseInfo.time} | {doseInfo.loc}</span>}
+                            </button>
+                        </div>
+
+                        {/* Grid */}
+                        <div className="grid grid-cols-2 gap-4">
+                            <div className="premium-glass p-6 rounded-[2rem] flex flex-col justify-between">
+                                <span className="text-[10px] uppercase font-extrabold opacity-50 tracking-widest text-slate-500 dark:text-slate-400">Dagsform</span>
+                                <div className="text-5xl font-black text-ketchup mt-2 drop-shadow-sm">{mood}<span className="text-sm opacity-40 font-bold">/10</span></div>
+                                <input type="range" min="1" max="10" value={mood} onChange={e => {setMood(parseInt(e.target.value)); haptic('light')}} className="mt-6" />
+                            </div>
+                            <div className="premium-glass p-6 rounded-[2rem] flex flex-col justify-between">
+                                <span className="text-[10px] uppercase font-extrabold opacity-50 tracking-widest text-slate-500 dark:text-slate-400">Spotting</span>
+                                <button 
+                                    className={`mt-4 w-full py-5 rounded-[1.25rem] font-extrabold text-sm transition-all duration-300 active:scale-90 shadow-sm
+                                    ${spotting 
+                                        ? 'bg-gradient-to-br from-red-500 to-red-600 text-white shadow-red-500/40 shadow-lg ring-2 ring-red-400 ring-offset-2 dark:ring-offset-[#030303]' 
+                                        : 'bg-white dark:bg-[#111111] text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-white/5 hover:border-slate-300 dark:hover:border-white/10 hover:shadow-md'}`}
+                                    onClick={() => { setSpotting(!spotting); haptic('light'); }}
+                                >
+                                    {spotting ? 'Ja, idag 🩸' : 'Nej, clean ✨'}
+                                </button>
+                            </div>
+                        </div>
+
+                        {/* Symtomlogg */}
+                        <div className="premium-glass p-7 rounded-[2rem]">
+                            <h3 className="text-[11px] font-extrabold mb-5 uppercase tracking-[0.2em] opacity-60 flex items-center gap-2 text-slate-600 dark:text-slate-400">
+                                <i data-lucide="activity" className="w-4 h-4 text-ketchup"></i> Heuristik
+                            </h3>
+                            <div className="flex flex-wrap gap-3">
+                                {availableTags.map(tag => (
+                                    <button 
+                                        key={tag}
+                                        onClick={() => toggleTag(tag)}
+                                        className={`px-4 py-2.5 rounded-full text-xs font-bold transition-all duration-200 active:scale-90 border hover:-translate-y-0.5
+                                        ${pmsTags.includes(tag) 
+                                            ? 'bg-gradient-to-br from-red-500 to-red-600 text-white border-transparent shadow-[0_8px_16px_rgba(230,57,70,0.35)]' 
+                                            : 'bg-white/60 dark:bg-black/40 border-slate-200 dark:border-white/10 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-white/5 shadow-sm hover:shadow-md'}`}
+                                    >
+                                        {tag}
+                                    </button>
+                                ))}
+                            </div>
+                        </div>
+
+                        {/* Graf */}
+                        <div className="premium-glass p-7 rounded-[2rem] h-64 flex flex-col">
+                            <h3 className="text-[11px] font-extrabold mb-5 uppercase tracking-[0.2em] opacity-60 flex items-center gap-2 text-slate-600 dark:text-slate-400">
+                                <i data-lucide="trending-up" className="w-4 h-4 text-ketchup"></i> Data Trend
+                            </h3>
+                            <div className="flex-grow w-full -ml-3">
+                                <ResponsiveContainer width="100%" height="100%">
+                                    <AreaChart data={chartData} key={`chart-${isDark}`}>
+                                        <defs>
+                                            <linearGradient id="colorVal" x1="0" y1="0" x2="0" y2="1">
+                                                <stop offset="5%" stopColor="#e63946" stopOpacity={0.8}/>
+                                                <stop offset="95%" stopColor="#e63946" stopOpacity={0}/>
+                                            </linearGradient>
+                                        </defs>
+                                        <Tooltip 
+                                            contentStyle={{
+                                                backgroundColor: isDark ? 'rgba(15,15,15,0.95)' : 'rgba(255,255,255,0.95)', 
+                                                borderRadius: '16px', 
+                                                border: isDark ? '1px solid rgba(255,255,255,0.1)' : '1px solid rgba(0,0,0,0.05)',
+                                                boxShadow: '0 10px 25px rgba(0,0,0,0.15)',
+                                                backdropFilter: 'blur(12px)'
+                                            }} 
+                                            itemStyle={{color: '#e63946', fontWeight: '900', fontSize: '16px'}}
+                                            labelStyle={{color: isDark ? '#a1a1aa' : '#64748b', fontSize: '10px', fontWeight: '800', textTransform: 'uppercase', letterSpacing: '1px'}}
+                                            cursor={{stroke: '#e63946', strokeWidth: 1.5, strokeDasharray: '4 4'}}
+                                        />
+                                        <Area type="monotone" dataKey="val" stroke="#e63946" strokeWidth={4} fillOpacity={1} fill="url(#colorVal)" />
+                                    </AreaChart>
+                                </ResponsiveContainer>
+                            </div>
+                        </div>
+
+                        {/* Render the terminal ON TOP of everything if active */}
+                        {showTerminal && (
+                            <AdminTerminal 
+                                logs={logs} 
+                                onExit={() => setShowTerminal(false)} 
+                                onClear={() => { if(confirm("CRITICAL WARNING: Radera databas?")) { setLogs([]); haptic('heavy'); } }}
+                            />
+                        )}
+                        
+                    </main>
+                </div>
+            );
+        };
+
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<App />);
+    </script>
+</body>
+</html>
