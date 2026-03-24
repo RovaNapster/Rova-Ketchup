@@ -2,7 +2,7 @@
 <html lang="sv" class="dark">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <title>KETCHUP PMS - Rova Edition</title>
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -80,7 +80,7 @@
         .dark .premium-glass {
             background: linear-gradient(145deg, rgba(30, 30, 30, 0.65) 0%, rgba(15, 15, 15, 0.45) 100%);
             border: 1px solid rgba(255, 255, 255, 0.08);
-            border-top: 1px solid rgba(255, 255, 255, 0.15); /* Lyxig top-highlight */
+            border-top: 1px solid rgba(255, 255, 255, 0.15);
             box-shadow: 0 10px 40px -10px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.05);
         }
 
@@ -94,10 +94,10 @@
         .matrix-glow { text-shadow: 0 0 12px rgba(57, 255, 20, 0.9); }
         .smooth-transition { transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1); }
 
-        button { will-change: transform; touch-action: pan-y; }
+        button { will-change: transform; touch-action: manipulation; }
 
         /* Super-Smooth Slider */
-        input[type=range] { -webkit-appearance: none; width: 100%; background: transparent; touch-action: pan-y; }
+        input[type=range] { -webkit-appearance: none; width: 100%; background: transparent; touch-action: manipulation; }
         input[type=range]:focus { outline: none; }
         
         input[type=range]::-webkit-slider-thumb { 
@@ -185,7 +185,7 @@
         };
 
         const App = () => {
-            // --- STATE (PATCH 2: Persistens vid omladdning) ---
+            // --- STATE ---
             const [isDark, setIsDark] = useState(() => localStorage.getItem('rovaTheme') !== 'light');
             const [logs, setLogs] = useState(() => safeGetItem('rovaLogs', []));
             
@@ -239,7 +239,6 @@
                 setTimeout(() => { if (window.lucide) window.lucide.createIcons(); }, 50);
             }, [isDark, showTerminal, hasDosed, pmsTags, spotting]);
 
-            // (PATCH 3: "The Save Paradox" - Spara symtom tyst i bakgrunden)
             useEffect(() => {
                 if (!hasDosed) return;
                 
@@ -273,24 +272,9 @@
                 const end = Date.now() + duration;
 
                 (function frame() {
-                    confetti({
-                        particleCount: 3,
-                        angle: 60,
-                        spread: 55,
-                        origin: { x: 0, y: 0.8 },
-                        colors: ['#e63946', '#10b981', '#ffffff']
-                    });
-                    confetti({
-                        particleCount: 3,
-                        angle: 120,
-                        spread: 55,
-                        origin: { x: 1, y: 0.8 },
-                        colors: ['#e63946', '#10b981', '#ffffff']
-                    });
-
-                    if (Date.now() < end) {
-                        requestAnimationFrame(frame);
-                    }
+                    confetti({ particleCount: 3, angle: 60, spread: 55, origin: { x: 0, y: 0.8 }, colors: ['#e63946', '#10b981', '#ffffff'] });
+                    confetti({ particleCount: 3, angle: 120, spread: 55, origin: { x: 1, y: 0.8 }, colors: ['#e63946', '#10b981', '#ffffff'] });
+                    if (Date.now() < end) requestAnimationFrame(frame);
                 }());
             }, []);
 
@@ -324,7 +308,7 @@
             const handleDose = () => {
                 if (hasDosed) return;
                 haptic('success');
-                fireConfetti(); // Kasta konfetti! 🎉
+                fireConfetti();
                 
                 const time = new Date().toLocaleTimeString('sv-SE', { hour: '2-digit', minute: '2-digit' });
                 
@@ -387,7 +371,7 @@
 
                     <main className="max-w-md mx-auto space-y-6">
                         
-                        {/* Huvudknapp (Sexy Edition) */}
+                        {/* Huvudknapp */}
                         <div className="premium-glass rounded-[2.5rem] p-2.5 z-10 relative">
                             <button 
                                 onClick={handleDose}
@@ -397,7 +381,6 @@
                                     ? 'bg-gradient-to-br from-emerald-400 to-emerald-600 text-white shadow-[0_10px_25px_-5px_rgba(16,185,129,0.5)] cursor-default' 
                                     : 'bg-gradient-to-br from-red-500 to-red-700 text-white animate-breathe active:scale-[0.97] hover:brightness-110'}`}
                             >
-                                {/* Shine effect */}
                                 {!hasDosed && <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent animate-shine opacity-50"></div>}
                                 
                                 <div className={`p-3.5 rounded-full ${hasDosed ? 'bg-emerald-500/50 shadow-[0_0_20px_rgba(16,185,129,0.5)]' : 'bg-red-400/40 shadow-[0_0_20px_rgba(255,255,255,0.2)]'}`}>
