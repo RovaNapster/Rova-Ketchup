@@ -48,3 +48,42 @@ Appen innehåller en dold, matrix-inspirerad administratörsterminal för direkt
 
 ---
 *Designad och utvecklad av Rova Systems | 2026*
+KETCHUP PMS - Rova Edition
+Projekt Äppelskrutt | Flaggskeppsreleasen
+En högt optimerad, lokalt driven PWA (Progressive Web App) framtagen exklusivt för att spåra kliniska medicinprotokoll (med fokus på Slinda/Drospirenon). Denna applikation är utvecklad för att leverera exceptionell prestanda, 100% integritet och ett premium-gränssnitt optimerat för hastighet som utmanar branschstandarden för moderna smartphones.
+"Version" (https://img.shields.io/badge/Version-5.0_Ultimate-e63946)
+"Platform" (https://img.shields.io/badge/Platform-iOS_%7C_Android_%7C_Web-black)
+"Tech" (https://img.shields.io/badge/Tech-React_%7C_Tailwind_%7C_PWA-blue)
+Flaggskeppsfunktioner
+* Optimal Prestanda (120Hz-kompatibel): Hårdvaruaccelererade (GPU) animationer, "useMemo"-optimerad React-rendering och eliminerad "overscroll" för en laggfri användarupplevelse.
+* Premium Glassmorphism & Sann Mörk Mod: Djup OLED-svärta ("#030303") kombineras med dynamiska, frostat glaspaneler, glanseffekter ("shine") och mjuka pulserande skuggor.
+* 100% Offline-Först: En robust Service Worker ("sw.js") cachar hela ramverket lokalt. Applikationen startar omedelbart och är fullt funktionell i flygplansläge.
+* Säker Lokal Lagring: All känslig hälsodata lagras exklusivt på enhetens interna minne ("localStorage"). Ingen data lämnar någonsin telefonen.
+* Intelligent Geolokalisering & Taktil Haptik: Registrerar diskret plats vid intag. Bekräftar inmatningar med kontextuell fysisk haptisk återkoppling (vibrationer).
+* Mikrointeraktioner: Belönar användaren med konfetti vid intagen dos och ger omedelbar visuell återkoppling vid samtliga knapptryckningar ("active:scale").
+* Avancerad Heuristik & Kinetik: Möjlighet att spåra dagsform (1-10), spotting och specifika PMS-symtom, vilket visualiseras i realtid via en inbyggd trendgraf (Recharts).
+Teknisk Stack
+Applikationen är konstruerad som en modern "Zero-Build" React-applikation. Inga Node-servrar eller Webpack är nödvändiga – allt kompileras snabbt direkt i webbläsaren via CDN.
+* Kärna: React 18, Babel (Standalone)
+* Stilhantering: Tailwind CSS (via CDN med anpassad konfiguration)
+* Ikoner & Visuella Element: Lucide Icons, Canvas-Confetti
+* Datavisualisering: Recharts
+* PWA: Vanilla JavaScript Service Worker (Stale-while-revalidate)
+Driftsättning (GitHub Pages)
+1. Ladda upp "index.html", "manifest.json" och "sw.js" till ditt repository (huvudgrenen).
+2. Navigera till Settings -> Pages i GitHub.
+3. Välj Deploy from a branch och ställ in på "main". Spara.
+4. Öppna länken i Safari (iOS) eller Chrome (Android).
+5. Välj "Lägg till på hemskärmen" för att installera applikationen och aktivera PWA-funktionerna.
+***
+ROVA ENCRYPTION ENGINE (Administratörsläge)
+Applikationen inkluderar en dold, matrix-inspirerad administratörsterminal för direkt insyn i databasen.
+Instruktioner för att öppna portalen:
+1. I applikationens huvudvy, klicka exakt 4 gånger snabbt (inom 1.5 sekunder) på "KETCHUP"-logotypen (texten uppe till vänster).
+2. Systemet bekräftar med en kraftig vibration och öppnar Terminal Mode.
+3. Lösenord: Ange "rova6666" för att dekryptera systemet.
+Administratörsverktyg:
+* RAW_LOCALSTORAGE_DUMP: Visar en prydligt formaterad JSON-sträng av de senaste loggarna direkt från enhetens minne.
+* NUKE DATABASE: Möjlighet att oåterkalleligen radera all lokal patientdata (används för felsökning/återställning).
+***
+Designad och utvecklad av Rova Systems | 2026
